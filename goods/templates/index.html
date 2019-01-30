@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>电子商务系统-登录</title>
+    <title>记账系统</title>
 
     <!-- Bootstrap core CSS -->
     <link href="{%static 'css/signin.css'%}" rel="stylesheet">
@@ -24,7 +24,7 @@
     <div class="container">
       <form class="form-signin" method="post" action="/login_action/" enctype="multipart/form-data">
 	  {% csrf_token %}
-        <h2 class="form-signin-heading">电子商务系统-登录</h2>
+        <h2 class="form-signin-heading">记账系统-登录</h2>
         {{uf.as_p}}
           <p style="color:red">{{error}}</p> <br>
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button><br>
