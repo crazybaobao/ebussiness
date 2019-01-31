@@ -10,13 +10,10 @@ from goods.object import Chart_list, Order_list, Orders_list
 from goods.forms import UserForm, LoginForm, AddressForm
 
 
-# Create your views here.
-
 # 以下是用户管理部分
 # 首页(登录)
 def index(request):
     uf = LoginForm()
-    # print(uf, type(uf))
     return render(request, 'index.html', {'uf': uf})
 
 

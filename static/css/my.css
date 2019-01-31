@@ -1,3 +1,19 @@
-body{color:#efd;background:#453;padding:0 5em;margin:0}
-    h1{padding:2em 1em;background:#675}
-    h2{color:#bf8;border-top:1px dotted #fff;margin-top:2em}
+body {
+    color: black;
+    background: #f7e1b5;
+    padding: 0 5em;
+    margin: 0;
+    font-weight: bolder;
+}
+
+h1 {
+    padding: 2em 1em;
+    background: #675
+}
+
+h2 {
+    color: black;
+    /*border-top: 1px dotted #fff;*/
+    margin-top: 2em;
+    font-weight: bolder;
+}
