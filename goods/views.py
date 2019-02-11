@@ -13,6 +13,7 @@ from goods.forms import UserForm, LoginForm, AddressForm
 # 以下是用户管理部分
 # 首页(登录)
 def index(request):
+    # 获得登录表单模型
     uf = LoginForm()
     return render(request, 'index.html', {'uf': uf})
 
@@ -20,12 +21,13 @@ def index(request):
 # 用户登出
 def logout(request):
     response = HttpResponseRedirect('/index/')  # 登录成功跳转查看商品信息
-    del request.session['username']  # 将session 信息写到服务器
+    del request.session['username']  # 从session中将数据删除
     return response
 
 
 # 用户注册
 def register(request):
+    # 实例化工具类
     util = Util()
     if request.method == "POST":  # 判断表单是否提交状态
         uf = UserForm(request.POST)  # 获得表单变量
@@ -35,7 +37,6 @@ def register(request):
             password = (request.POST.get('password')).strip()  # 获取密码信息
             # 加密password
             password = util.md5(password)
-            # 判断密码长度是否做过50
             email = (request.POST.get('email')).strip()  # 获取Email信息
             # 查找数据库中是否存在相同用户名
             user_list = User.objects.filter(username=username)

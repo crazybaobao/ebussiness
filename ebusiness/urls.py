@@ -22,6 +22,9 @@ import os
 from django.conf.urls.static import static
 from . import settings
 
+# 正则中字符串前面加上r表示原生字符串
+# ^匹配输入字符串的开始位置，除非在方括号表达式中使用，此时它表示不接受该字符集合。要匹配 ^ 字符本身，请使用 \^。
+# $匹配输入字符串结尾的位置。如果设置了 RegExp 对象的 Multiline 属性，$ 还会与 \n 或 \r 之前的位置匹配。
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   re_path(r'^$', views.index),

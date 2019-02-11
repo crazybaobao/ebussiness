@@ -19,6 +19,7 @@
     <form class="form-signin" method="post" action="/login_action/" enctype="multipart/form-data">
         {% csrf_token %}
         <h2 class="form-signin-heading">记账系统-登录</h2>
+        <!-- as_p表示渲染成P标签形式 -->
         <label class="wy1">{{ uf.as_p }}</label>
         <p style="color:red">{{ error }}</p> <br>
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
