@@ -4,10 +4,10 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from goods.models import Goods, Address, Order, Orders, User
+from goods.models import Goods, Order, Orders, User
 from goods.util import Util
 from goods.object import Chart_list, Order_list, Orders_list
-from goods.forms import UserForm, LoginForm, AddressForm
+from goods.forms import UserForm, LoginForm
 
 
 # 以下是用户管理部分
@@ -101,10 +101,8 @@ def user_info(request):
         count = util.cookies_count(request)
         # 获取登录用户信息
         user_list = get_object_or_404(User, username=username)
-        # 获取登录用户收货地址的所有信息
-        address_list = Address.objects.filter(user_id=user_list.id)
         return render(request, "view_user.html",
-                      {"user": username, "user_info": user_list, "address": address_list, "count": count})
+                      {"user": username, "user_info": user_list, "count": count})
 
 
 # 修改用户密码
@@ -161,7 +159,7 @@ def goods_view(request):
         count = util.cookies_count(request)
 
         # 翻页操作
-        paginator = Paginator(good_list, 5)
+        paginator = Paginator(good_list, 10)
         page = request.GET.get('page')
         try:
             contacts = paginator.page(page)
@@ -310,154 +308,6 @@ def remove_chart_all(request):
         return response
 
 
-# 以下是地址管理部分
-# 查看地址单
-def view_address(request):
-    util = Util()
-    username = util.check_user(request)
-    if username == "":
-        uf = LoginForm()
-        return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
-    else:
-        # 返回用户信息
-        user_list = get_object_or_404(User, username=username)
-        # 返回这个用户的地址信息
-        address_list = Address.objects.filter(user_id=user_list.id)
-        return render(request, 'view_address.html', {"user": username, 'addresses': address_list})
-
-
-# 添加地址
-# sign=1 从用户信息进入
-# sign=2 从订单信息进入
-def add_address(request, sign):
-    util = Util()
-    username = util.check_user(request)
-    if username == "":
-        uf1 = LoginForm()
-        return render(request, "index.html", {'uf': uf1, "error": "请登录后再进入"})
-    else:
-        # 获得当前登录用户的所有信息
-        user_list = get_object_or_404(User, username=username)
-        # 获得当前登录用户的编号
-        id = user_list.id
-        # 判断表单是否提交
-        if request.method == "POST":
-            # 如果表单提交，准备获取表单信息
-            uf = AddressForm(request.POST)
-            # 表单信息是否正确
-            if uf.is_valid():
-                # 如果正确，开始获取表单信息
-                myaddress = (request.POST.get("address", "")).strip()
-                phone = (request.POST.get("phone", "")).strip()
-                # 判断地址是否存在
-                check_address = Address.objects.filter(address=myaddress, user_id=id)
-                if not check_address:
-                    # 如果不存在，将表单写入数据库
-                    address = Address()
-                    address.address = myaddress
-                    address.phone = phone
-                    address.user_id = id
-                    address.save()
-                    # 返回地址列表页面
-                    address_list = Address.objects.filter(user_id=user_list.id)
-                    # 如果sign=="2"，返回订单信息
-                    if sign == "2":
-                        return render(request, 'view_address.html',
-                                      {"user": username, 'addresses': address_list})  # 进入订单用户信息
-                    else:
-                        # 否则返回用户信息
-                        response = HttpResponseRedirect('/user_info/')  # 进入用户信息
-                        return response
-                # 否则返回添加用户界面，显示“这个地址已经存在！”的错误信息
-                else:
-                    return render(request, 'add_address.html', {'uf': uf, 'error': '这个地址已经存在！'})
-        # 如果没有提交，显示添加地址见面
-        else:
-            uf = AddressForm()
-        return render(request, 'add_address.html', {'uf': uf})
-
-
-# 删除地址
-# sign=1 从用户信息进入
-# sign=2 从订单用户信息进入
-def delete_address(request, address_id, sign):
-    util = Util()
-    username = util.check_user(request)
-    if username == "":
-        uf = LoginForm()
-        return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
-    else:
-        if not util.check_User_By_Address(request, username, address_id):
-            return render(request, "error.html", {"error": "你试图删除不属于你的地址信息！"})
-        else:
-            # 获取指定地址信息
-            user_list = get_object_or_404(User, username=username)
-            # 删除这个地址信息
-            Address.objects.filter(id=address_id).delete()
-            # 返回地址列表页面
-            address_list = Address.objects.filter(user_id=user_list.id)
-            # 如果sign==2,返回订单信息页面
-            if sign == "2":
-                return render(request, 'view_address.html', {"user": username, 'addresses': address_list})  # 进入订单用户信息
-            # 否则进入用户信息页面
-            else:
-                response = HttpResponseRedirect('/user_info/')  # 进入用户信息
-                return response
-
-
-# 修改地址
-# sign=1 从用户信息进入
-# sign=2 从订单信息进入
-def update_address(request, address_id, sign):
-    util = Util()
-    username = util.check_user(request)
-    if username == "":
-        uf = LoginForm()
-        return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
-    else:
-        # 判断修改的地址是否属于当前登录用户
-        if not util.check_User_By_Address(request, username, address_id):
-            return render(request, "error.html", {"error": "你试图修改不属于你的地址信息！"})
-        else:
-            # 获取指定地址信息
-            address_list = get_object_or_404(Address, id=address_id)
-            # 获取当前登录用户的用户信息
-            user_list = get_object_or_404(User, username=username)
-            # 获取用户编号
-            id = user_list.id
-            # 如果是提交状态
-            if request.method == "POST":
-                # 如果表单提交，准备获取表单信息
-                uf = AddressForm(request.POST)
-                # 表单信息验证
-                if uf.is_valid():
-                    # 如果数据准确，获取表单信息
-                    myaddress = (request.POST.get("address", "")).strip()
-                    phone = (request.POST.get("phone", "")).strip()
-                    # 判断修改的地址信息这个用户是否是否存在
-                    check_address = Address.objects.filter(address=myaddress, user_id=id)
-                    # 如果不存在，将表单数据修改进数据库
-                    if not check_address:
-                        Address.objects.filter(id=address_id).update(address=myaddress, phone=phone)
-                    # 否则报“这个地址已经存在！”的错误提示信息
-                    else:
-                        return render(request, 'update_address.html',
-                                      {'uf': uf, 'error': '这个地址已经存在！', 'address': address_list})
-                    # 获得当前登录用户的所有地址信息
-                    address_list = Address.objects.filter(user_id=user_list.id)
-                    # 如果sign==2,返回订单信息页面
-                    if sign == "2":
-                        return render(request, 'view_address.html',
-                                      {"user": username, 'addresses': address_list})  # 进入订单用户信息
-                    # 否则进入用户信息页面
-                    else:
-                        response = HttpResponseRedirect('/user_info/')  # 进入用户信息
-                        return response
-            # 如果没有提交，显示修改地址页面
-            else:
-                return render(request, 'update_address.html', {'address': address_list})
-
-
 # 以下是订单管理部分
 # 生成订单
 def create_order(request):
@@ -469,47 +319,36 @@ def create_order(request):
     else:
         # 根据登录的用户名获得用户信息
         user_list = get_object_or_404(User, username=username)
-        # 从选择地址信息中获得建立这个订单的送货地址编号
-        address_id = (request.POST.get("address", "")).strip()
-        # 如果没有选择地址，返回错误提示信息必须选择一个地址！
-        if address_id == "":
-            address_list = Address.objects.filter(user_id=user_list.id)
-            return render(request, 'view_address.html',
-                          {"user": username, 'addresses': address_list, "error": "必须选择一个地址！"})
-            # 否则开始形成订单
-        else:
-            # 把数据存入数据库中的总订单表
-            orders = Orders()
-            # 获得订单的送货地址编号
-            orders.address_id = int(address_id)
-            # 设置订单的状态为未付款
-            orders.status = False
-            # 保存总订单信息
-            orders.save()
-            # 准备把订单中的每个商品出存入单个订单表
+        # 把数据存入数据库中的总订单表
+        orders = Orders()
+        # 设置订单的状态为未付款
+        orders.status = False
+        # 保存总订单信息
+        orders.save()
+        # 准备把订单中的每个商品出存入单个订单表
+        # 获得总订单编号
+        orders_id = orders.id
+        # 获得购物车中的内容
+        cookie_list = util.deal_cookes(request)
+        # 遍历购物车
+        for key in cookie_list:
+            # 构建对象Order()
+            order = Order()
             # 获得总订单编号
-            orders_id = orders.id
-            # 获得购物车中的内容
-            cookie_list = util.deal_cookes(request)
-            # 遍历购物车
-            for key in cookie_list:
-                # 构建对象Order()
-                order = Order()
-                # 获得总订单编号
-                order.order_id = orders_id
-                # 获得用户编号
-                order.user_id = user_list.id
-                # 获得商品编号
-                order.goods_id = key
-                # 获得数量
-                order.count = int(cookie_list[key])
-                # 保存单个订单信息
-                order.save()
-            # 清除所有cookies，并且显示这个订单
-            response = HttpResponseRedirect('/view_order/' + str(orders_id))
-            for key in cookie_list:
-                response.set_cookie(str(key), 1, 0)
-            return response
+            order.order_id = orders_id
+            # 获得用户编号
+            order.user_id = user_list.id
+            # 获得商品编号
+            order.goods_id = key
+            # 获得数量
+            order.count = int(cookie_list[key])
+            # 保存单个订单信息
+            order.save()
+        # 清除所有cookies，并且显示这个订单
+        response = HttpResponseRedirect('/view_order/' + str(orders_id))
+        for key in cookie_list:
+            response.set_cookie(str(key), 1, 0)
+        return response
 
 
 # 显示订单
@@ -522,10 +361,6 @@ def view_order(request, orders_id):
     else:
         # 获取订单信息
         orders_filter = get_object_or_404(Orders, id=orders_id)
-        # 获取订单的收货地址信息
-        address_list = get_object_or_404(Address, id=orders_filter.address_id)
-        # 获取收货地址信息中的地址
-        address = address_list.address
         # 获得单个订单表中的信息
         order_filter = Order.objects.filter(order_id=orders_filter.id)
         # 建立列表变量order_list，里面存的是每个Order_list对象
@@ -540,8 +375,7 @@ def view_order(request, orders_id):
             order_list_var.append(order_object)
             prices = order_object.price * order_object.count + prices
         return render(request, 'view_order.html',
-                      {"user": username, 'orders': orders_filter, 'order': order_list_var, 'address': address,
-                       "prices": str(prices)})
+                      {"user": username, 'orders': orders_filter, 'order': order_list_var, "prices": str(prices)})
 
 
 # 查看所有订单

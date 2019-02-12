@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.shortcuts import render, get_object_or_404
-from goods.models import Goods, Address, Order, Orders, User
+from goods.models import Goods, Order, Orders, User
 from goods.object import Chart_list, Order_list, Orders_list
 import hashlib
 
@@ -122,7 +122,6 @@ class Util:
     def set_orders_list(self, key):
         order_list = Orders_list()
         order_list.set_id(key.id)  # 主键
-        order_list.set_address(key.address)  # 地址信息
         order_list.set_create_time(key.create_time)  # 创建时间
         return order_list
 
