@@ -7,7 +7,6 @@ from django.db import models
 class User(models.Model):
     username = models.CharField(max_length=50)  # 用户名
     password = models.CharField(max_length=50)  # 密码
-    email = models.EmailField()  # Email
 
     def __str__(self):
         return self.username
@@ -17,7 +16,6 @@ class User(models.Model):
 class Goods(models.Model):
     name = models.CharField(max_length=100)  # 商品名称
     price = models.IntegerField()  # 单价
-    picture = models.FileField(upload_to='./upload/')  # 图片
     desc = models.TextField()  # 描述
 
     def __str__(self):

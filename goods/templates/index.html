@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 上述2个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>家庭采购单系统</title>
+    <title>家庭物品采购单系统</title>
 
     <!-- Bootstrap core CSS -->
     <link href="{% static 'css/signin.css' %}" rel="stylesheet">
@@ -18,13 +18,13 @@
 <div class="container">
     <form class="form-signin" method="post" action="/login_action/" enctype="multipart/form-data">
         {% csrf_token %}
-        <h2 class="form-signin-heading">家庭采购单系统-登录</h2>
+        <h2 class="form-signin-heading">家庭物品采购单系统-登录</h2>
         <!-- as_p表示渲染成P标签形式 -->
         <label class="wy1">{{ uf.as_p }}</label>
         <p style="color:red">{{ error }}</p> <br>
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
         <br>
-        <a href="\register\">注册</a>
+        <a href="\register\">去注册</a>
     </form>
 
 </div> <!-- /container -->

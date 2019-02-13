@@ -299,7 +299,7 @@ def remove_chart_all(request):
         uf = LoginForm()
         return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
     else:
-        response = HttpResponseRedirect('/view_chart/')
+        response = HttpResponseRedirect('/goods_view/')
         # 获取所有的购物车中的内容
         cookie_list = util.deal_cookes(request)
         # 遍历购物车中的内容，一个一个地删除
@@ -362,6 +362,10 @@ def view_order(request, orders_id):
         # 获取订单信息
         orders_filter = get_object_or_404(Orders, id=orders_id)
         # 获得单个订单表中的信息
+
+        # 时间转换
+        orders_time = orders_filter.create_time
+
         order_filter = Order.objects.filter(order_id=orders_filter.id)
         # 建立列表变量order_list，里面存的是每个Order_list对象
         order_list_var = []
