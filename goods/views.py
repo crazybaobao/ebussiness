@@ -34,7 +34,6 @@ def register(request):
             password = (request.POST.get('password')).strip()  # 获取密码信息
             # 加密password
             password = util.md5(password)
-            email = (request.POST.get('email')).strip()  # 获取Email信息
             # 查找数据库中是否存在相同用户名
             user_list = User.objects.filter(username=username)
             if user_list:
@@ -46,7 +45,6 @@ def register(request):
                 user = User()
                 user.username = username
                 user.password = password
-                user.email = email
                 user.save()
                 # 返回登录页面
                 uf = LoginForm()
