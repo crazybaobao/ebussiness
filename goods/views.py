@@ -1,8 +1,5 @@
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from goods.models import Goods, Order, Orders, User
 from goods.util import Util
@@ -483,15 +480,3 @@ def delete_orders(request, orders_id, sign):
                 # 返回查看所有订单页面
                 response = HttpResponseRedirect('/view_all_order/')  # 跳入查看所有订单
                 return response
-
-
-def page_not_found(request):
-    return render(request, '404.html')
-
-
-def page_error(request):
-    return render(request, '500.html')
-
-
-def permission_denied(request):
-    return render(request, '403.html')
