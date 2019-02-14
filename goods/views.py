@@ -37,7 +37,6 @@ def register(request):
             # 查找数据库中是否存在相同用户名
             user_list = User.objects.filter(username=username)
             if user_list:
-                # 如果存在，报"用户名已经存在！"错误信息并且回到注册页面
                 uf = UserForm()
                 return render(request, 'register.html', {'uf': uf, "error": "用户名已经存在！"})
             else:
