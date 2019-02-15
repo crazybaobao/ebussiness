@@ -36,19 +36,18 @@ def register(request):
             password = util.md5(password)
             # 查找数据库中是否存在相同用户名
             user_list = User.objects.filter(username=username)
-            if user_list is not None:
-                if user_list:
-                    uf = UserForm()
-                    return render(request, 'register.html', {'uf': uf, "error": "用户名已经存在！"})
-                else:
-                    # 否则将表单写入数据库
-                    user = User()
-                    user.username = username
-                    user.password = password
-                    user.save()
-                    # 返回登录页面
-                    uf = LoginForm()
-                    return render(request, 'index.html', {'uf': uf})
+            if user_list:
+                uf = UserForm()
+                return render(request, 'register.html', {'uf': uf, "error": "用户名已经存在！"})
+            else:
+                # 否则将表单写入数据库
+                user = User()
+                user.username = username
+                user.password = password
+                user.save()
+                # 返回登录页面
+                uf = LoginForm()
+                return render(request, 'index.html', {'uf': uf})
     else:  # 如果不是表单提交状态，显示表单信息
         uf = UserForm()
     return render(request, 'register.html', {'uf': uf})
