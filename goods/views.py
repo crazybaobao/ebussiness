@@ -1,9 +1,9 @@
-from django.shortcuts import render, render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from goods.models import Goods, Order, Orders, User
 from goods.util import Util
-from goods.object import Chart_list, Order_list, Orders_list
+from goods.object import ChartList, OrderList, OrdersList
 from goods.forms import UserForm, LoginForm
 
 
@@ -59,7 +59,7 @@ def login_action(request):
     if request.method == "POST":
         uf = LoginForm(request.POST)
         if uf.is_valid():
-            # 寻找名为 "username"和"password"的POST参数，而且如果参数没有提交，返回一个空的字符串。
+            # 获取表单信息
             username = (request.POST.get('username')).strip()
             password = (request.POST.get('password')).strip()
             # 加密password
@@ -68,7 +68,7 @@ def login_action(request):
             if username == '' or password == '':
                 return render(request, "index.html", {'uf': uf, "error": "用户名和密码不能为空"})
             else:
-                # 判断用户名和密码是否准确
+                # 判断用户名和密码是否正确
                 user = User.objects.filter(username=username, password=password)
                 if user:
                     response = HttpResponseRedirect('/goods_view/')  # 登录成功跳转查看商品信息
@@ -93,10 +93,8 @@ def user_info(request):
     else:
         # count为当前购物车中商品的数量
         count = util.cookies_count(request)
-        # 获取登录用户信息
-        user_list = get_object_or_404(User, username=username)
         return render(request, "view_user.html",
-                      {"user": username, "user_info": user_list, "count": count})
+                      {"user": username, "count": count})
 
 
 # 修改用户密码
@@ -109,30 +107,30 @@ def change_password(request):
     else:
         count = util.cookies_count(request)
         # 获得当前登录用户的用户信息
-        user_info = get_object_or_404(User, username=username)
+        userinfo = get_object_or_404(User, username=username)
         # 如果是提交表单，获取表单信息，并且进行表单信息验证
         if request.method == "POST":
             # 获取旧密码
-            oldpassword = util.md5((request.POST.get("oldpassword", "")).strip())
+            old_password = util.md5((request.POST.get("oldpassword", "")).strip())
             # 获取新密码
-            newpassword = util.md5((request.POST.get("newpassword", "")).strip())
+            new_password = util.md5((request.POST.get("newpassword", "")).strip())
             # 获取新密码的确认密码
-            checkpassword = util.md5((request.POST.get("checkpassword", "")).strip())
+            check_password = util.md5((request.POST.get("checkpassword", "")).strip())
             # 如果旧密码不正确，报错误信息，不允许修改
-            if oldpassword != user_info.password:
+            if old_password != userinfo.password:
                 return render(request, "change_password.html", {"user": username, "error": "旧密码不正确", "count": count})
             # 如果新密码与旧密码相同，报错误信息，不允许修改
-            elif newpassword == oldpassword:
+            elif new_password == old_password:
                 return render(request, "change_password.html",
                               {"user": username, "error": "新密码不能与旧密码相同", "count": count})
             # 如果新密码与新密码的确认密码不匹配，报错误信息，不允许修改
-            elif newpassword != checkpassword:
+            elif new_password != check_password:
                 return render(request, "change_password.html",
                               {"user": username, "error": "确认密码与新密码不匹配", "count": count})
             else:
                 # 否则修改成功
-                User.objects.filter(username=username).update(password=newpassword)
-                return render(request, "change_password.html", {"user": username, "error": "密码修改成功", "count": count})
+                User.objects.filter(username=username).update(password=new_password)
+                return logout(request)
         # 如果不是提交表单，显示修改密码页面
         else:
             return render(request, "change_password.html", {"user": username, "count": count})
@@ -148,7 +146,7 @@ def goods_view(request):
         return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
     else:
         # 获得所有商品信息
-        good_list = Goods.objects.all()
+        good_list = Goods.objects.get_queryset().order_by('id')
         # 获得购物车中物品数量
         count = util.cookies_count(request)
 
@@ -176,12 +174,12 @@ def search_name(request):
     else:
         count = util.cookies_count(request)
         # 获取查询数据
-        search_name = (request.POST.get("good", "")).strip()
+        search_for_name = (request.POST.get("good", "")).strip()
         # 通过objects.filter()方法进行模糊匹配查询，查询结果放入变量good_list
-        good_list = Goods.objects.filter(name__icontains=search_name)
+        good_list = Goods.objects.filter(name__icontains=search_for_name)
 
         # 对查询结果进行分页显示
-        paginator = Paginator(good_list, 5)
+        paginator = Paginator(good_list, 10)
         page = request.GET.get('page')
         try:
             contacts = paginator.page(page)
@@ -209,23 +207,18 @@ def view_goods(request, good_id):
 
 # 以下是购物车管理部分
 # 放入购物车
-def add_chart(request, good_id, sign):
+def add_chart(request, good_id):
     util = Util()
     username = util.check_user(request)
     if username == "":
         uf = LoginForm()
-        return render(request, "index.html", {"error": "请登录后再进入"})
+        return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
     else:
         # 获得商品详情
         good = get_object_or_404(Goods, id=good_id)
-        # 如果sign=="1"，返回商品列表页面
-        if sign == "1":
-            response = HttpResponseRedirect('/goods_view/')
-        # 否则返回商品详情页面
-        else:
-            response = HttpResponseRedirect('/view_goods/' + good_id)
-        # 把当前商品添加进购物车，参数为商品编号，值购买商品为个数1，有效时间为一年
-        response.set_cookie(str(good.id), 1, 60 * 60 * 24 * 365)
+        response = HttpResponseRedirect('/goods_view/')
+        # 把当前商品添加进购物车，参数为商品编号，值购买商品为个数1，有效时间为一小时
+        response.set_cookie(str(good.id), 1, 60 * 60)
         return response
 
 
@@ -323,7 +316,7 @@ def create_order(request):
         # 获得总订单编号
         orders_id = orders.id
         # 获得购物车中的内容
-        cookie_list = util.deal_cookes(request)
+        cookie_list = util.deal_cookies(request)
         # 遍历购物车
         for key in cookie_list:
             # 构建对象Order()
@@ -366,7 +359,7 @@ def view_order(request, orders_id):
         prices = 0
         for key in order_filter:
             # 定义Order_list对象
-            order_object = Order_list
+            order_object = OrderList
             # 产生一个Order_list对象
             order_object = util.set_order_list(key)
             # 把当前Order_list对象加入到列表变量order_list
@@ -400,7 +393,7 @@ def view_all_order(request):
                 # 初始化总订单列表
                 Orders_object_list = []
                 # 初始化总订单类
-                orders_object = Orders_list
+                orders_object = OrdersList
                 # 产生一个Orders_lis对象
                 orders_object = util.set_orders_list(key1)
                 # 初始化总价钱为0
@@ -408,7 +401,7 @@ def view_all_order(request):
                 # 遍历这个订单
                 for key in order_all:
                     # 初始化订单类
-                    order_object = Order_list
+                    order_object = OrderList
                     # 产生一个Order_lis对象
                     order_object = util.set_order_list(key)
                     # 将产生的order_object类加入到总订单列表中
@@ -416,7 +409,7 @@ def view_all_order(request):
                     # 计算总价格
                     prices = order_object.price * key.count + prices
                 # 把总价格放入到order_object类中
-                order_object.set_prices(prices)
+                orders_object.set_prices(prices)
                 # 把当前记录加到Reust_Order_list列中
                 # 从这里可以看出，Reust_Order_list每一项是一个字典类型，key为总订单类orders_object,value为总订单列表Orders_object_list
                 # 总订单列表Orders_object_list中每一项为一个单独订单对象order_object，即Reust_Order_list=[{orders_object类:[order_object类,...]},...]
@@ -437,7 +430,7 @@ def delete_orders(request, orders_id, sign):
         # 如果删除单独一个订单
         if sign == "1" or sign == "3":
             # 判断修改的地址是否属于当前登录用户
-            if not util.check_User_By_Order(request, username, orders_id):
+            if not util.check_user_by_order(request, username, orders_id):
                 return render(request, "error.html", {"error": "你试图删除不属于你的单独一个订单信息！"})
             else:
                 # 通过主键获得单独订单内容
@@ -467,7 +460,7 @@ def delete_orders(request, orders_id, sign):
             return response
             # 如果删除总订单
         elif sign == "2":
-            if not util.check_User_By_Orders(request, username, orders_id):
+            if not util.check_user_by_order(request, username, orders_id):
                 return render(request, "error.html", {"error": "你试图删除不属于你的总订单信息！"})
             else:
                 # 删除单个订单

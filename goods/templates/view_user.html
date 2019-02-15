@@ -21,7 +21,7 @@
 
         <div class="row">
             <div class="col-md-6">
-                <span style="color: #1fb8ee;font-weight: bold">当前用户：{{ user_info.username }}</span>
+                <span style="color: #1fb8ee;font-weight: bold">当前用户：{{ user }}</span>
                 <form action="/change_password/" method="get">
                     {% csrf_token %}
                     <input type="submit" value="修改密码">
