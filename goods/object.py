@@ -19,12 +19,12 @@ class OrderList:
         self.price = price
         self.count = count
 
-    def set_prices(self, prices):
-        self.prices = prices
-
 
 # 总订单模型
 class OrdersList:
     def __init__(self, id, create_time):
         self.id = id
         self.create_time = create_time
+
+    def set_prices(self, prices):
+        self.prices = prices

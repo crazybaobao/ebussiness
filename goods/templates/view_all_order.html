@@ -38,7 +38,7 @@
                             </tr>
                         {% endfor %}
                         <b>订单编号:{{ key2.id }}， 创建时间：{{ key2.create_time|date:"Y-m-d H:i:s" }}</b>
-                        <a href="/delete_orders/{{ key2.id }}/2/">&nbsp;&nbsp;&nbsp;删除订单</a>
+                        <a href="/delete_orders/{{ key2.id }}/">&nbsp;&nbsp;&nbsp;删除订单</a>
                     {% endfor %}
                     </tbody>
                 </table>

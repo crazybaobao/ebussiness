@@ -39,7 +39,7 @@ urlpatterns = [
                   re_path(r'^remove_chart/(?P<good_id>[0-9]+)/$', views.remove_chart),
                   re_path(r'^add_chart/(?P<good_id>[0-9]+)/$', views.add_chart),
                   re_path(r'^update_chart/(?P<good_id>[0-9]+)/$', views.update_chart),
-                  re_path(r'^delete_orders/(?P<orders_id>[0-9]+)/(?P<sign>[0-9]+)/$', views.delete_orders),
+                  re_path(r'^delete_orders/(?P<orders_id>[0-9]+)/$', views.delete_orders),
                   re_path(r'^create_order/$', views.create_order),
                   re_path(r'^view_order/(?P<orders_id>[0-9]+)/$', views.view_order),
                   re_path(r'^view_all_order/$', views.view_all_order),
