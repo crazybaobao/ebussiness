@@ -3,26 +3,25 @@ from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from goods.models import Goods, Order, Orders, User
 from goods.util import Util
-from goods.object import ChartList, OrderList, OrdersList
 from goods.forms import UserForm, LoginForm
 
 
 # 以下是用户管理部分
-# 首页(登录)
+# 首页(登录)-reviewed
 def index(request):
     # 获得登录表单模型
     uf = LoginForm()
     return render(request, 'index.html', {'uf': uf})
 
 
-# 用户登出
+# 用户登出-reviewed
 def logout(request):
     response = HttpResponseRedirect('/index/')  # 登录成功跳转查看商品信息
     del request.session['username']  # 从session中将数据删除
     return response
 
 
-# 用户注册
+# 用户注册-reviewed
 def register(request):
     # 实例化工具类
     util = Util()
@@ -53,7 +52,7 @@ def register(request):
     return render(request, 'register.html', {'uf': uf})
 
 
-# 用户登录
+# 用户登录-reviewed
 def login_action(request):
     util = Util()
     if request.method == "POST":
@@ -81,7 +80,7 @@ def login_action(request):
     return render(request, 'index.html', {'uf': uf})
 
 
-# 获取用户信息
+# 获取用户信息-reviewed
 def user_info(request):
     # 检查用户是否登录
     util = Util()
@@ -97,7 +96,7 @@ def user_info(request):
                       {"user": username, "count": count})
 
 
-# 修改用户密码
+# 修改用户密码-reviewed
 def change_password(request):
     util = Util()
     username = util.check_user(request)
@@ -137,7 +136,7 @@ def change_password(request):
 
 
 # 以下是商品管理部分
-# 查看商品信息
+# 查看商品信息-reviewed
 def goods_view(request):
     util = Util()
     username = util.check_user(request)
@@ -164,7 +163,7 @@ def goods_view(request):
         return render(request, "goods_view.html", {"user": username, "goodss": contacts, "count": count})
 
 
-# 商品搜索
+# 商品搜索-reviewed
 def search_name(request):
     util = Util()
     username = util.check_user(request)
@@ -192,7 +191,7 @@ def search_name(request):
         return render(request, "goods_view.html", {"user": username, "goodss": contacts, "count": count})
 
 
-# 查看商品详情
+# 查看商品详情-reviewed
 def view_goods(request, good_id):
     util = Util()
     username = util.check_user(request)
@@ -206,7 +205,7 @@ def view_goods(request, good_id):
 
 
 # 以下是购物车管理部分
-# 放入购物车
+# 放入购物车-reviewed
 def add_chart(request, good_id):
     util = Util()
     username = util.check_user(request)
@@ -222,7 +221,7 @@ def add_chart(request, good_id):
         return response
 
 
-# 查看购物车
+# 查看购物车-reviewed
 def view_chart(request):
     util = Util()
     username = util.check_user(request)
@@ -237,7 +236,7 @@ def view_chart(request):
         return render(request, "view_chart.html", {"user": username, "goodss": my_chart_list, "count": count})
 
 
-# 移出购物车
+# 移出购物车-reviewed
 def remove_chart(request, good_id):
     util = Util()
     username = util.check_user(request)
@@ -253,7 +252,7 @@ def remove_chart(request, good_id):
         return response
 
 
-# 修改购物车中商品的数量
+# 修改购物车中商品的数量-reviewed
 def update_chart(request, good_id):
     util = Util()
     username = util.check_user(request)
@@ -278,7 +277,7 @@ def update_chart(request, good_id):
             return response
 
 
-# 移出购物车中所有内容
+# 移出购物车中所有内容-reviewed
 def remove_chart_all(request):
     util = Util()
     username = util.check_user(request)
@@ -288,7 +287,7 @@ def remove_chart_all(request):
     else:
         response = HttpResponseRedirect('/goods_view/')
         # 获取所有的购物车中的内容
-        cookie_list = util.deal_cookes(request)
+        cookie_list = util.deal_cookies(request)
         # 遍历购物车中的内容，一个一个地删除
         for key in cookie_list:
             response.set_cookie(str(key), 1, 0)
@@ -296,7 +295,7 @@ def remove_chart_all(request):
 
 
 # 以下是订单管理部分
-# 生成订单
+# 生成订单-reviewed
 def create_order(request):
     util = Util()
     username = util.check_user(request)
@@ -338,7 +337,7 @@ def create_order(request):
         return response
 
 
-# 显示订单
+# 显示订单-reviewed
 def view_order(request, orders_id):
     util = Util()
     username = util.check_user(request)
@@ -346,20 +345,14 @@ def view_order(request, orders_id):
         uf = LoginForm()
         return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
     else:
-        # 获取订单信息
+        # 获取总订单信息
         orders_filter = get_object_or_404(Orders, id=orders_id)
         # 获得单个订单表中的信息
-
-        # 时间转换
-        orders_time = orders_filter.create_time
-
         order_filter = Order.objects.filter(order_id=orders_filter.id)
-        # 建立列表变量order_list，里面存的是每个Order_list对象
+        # 建立列表变量order_list_var，里面存的是每个Order_list对象
         order_list_var = []
         prices = 0
         for key in order_filter:
-            # 定义Order_list对象
-            order_object = OrderList
             # 产生一个Order_list对象
             order_object = util.set_order_list(key)
             # 把当前Order_list对象加入到列表变量order_list
@@ -369,7 +362,7 @@ def view_order(request, orders_id):
                       {"user": username, 'orders': orders_filter, 'order': order_list_var, "prices": str(prices)})
 
 
-# 查看所有订单
+# 查看所有订单-reviewed
 def view_all_order(request):
     util = Util()
     username = util.check_user(request)
@@ -377,11 +370,10 @@ def view_all_order(request):
         uf = LoginForm()
         return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
     else:
-        # 获得所有总订单信息
+        # 获得所有总订单信息（id大于0）
         orders_all = Orders.objects.filter(id__gt="0")
-        # orders_all = Orders.objects.all()
         # 初始化列表，给模板
-        Reust_Order_list = []
+        result_order_list = []
         # 遍历总订单
         for key1 in orders_all:
             # 通过当前订单编号获取这个订单的单个订单详细信息
@@ -391,21 +383,17 @@ def view_all_order(request):
             # 如果属于将其放入总订单列表中
             if user.username == username:
                 # 初始化总订单列表
-                Orders_object_list = []
-                # 初始化总订单类
-                orders_object = OrdersList
+                orders_object_list = []
                 # 产生一个Orders_lis对象
                 orders_object = util.set_orders_list(key1)
                 # 初始化总价钱为0
                 prices = 0
                 # 遍历这个订单
                 for key in order_all:
-                    # 初始化订单类
-                    order_object = OrderList
                     # 产生一个Order_lis对象
                     order_object = util.set_order_list(key)
                     # 将产生的order_object类加入到总订单列表中
-                    Orders_object_list.append(order_object)
+                    orders_object_list.append(order_object)
                     # 计算总价格
                     prices = order_object.price * key.count + prices
                 # 把总价格放入到order_object类中
@@ -413,60 +401,22 @@ def view_all_order(request):
                 # 把当前记录加到Reust_Order_list列中
                 # 从这里可以看出，Reust_Order_list每一项是一个字典类型，key为总订单类orders_object,value为总订单列表Orders_object_list
                 # 总订单列表Orders_object_list中每一项为一个单独订单对象order_object，即Reust_Order_list=[{orders_object类:[order_object类,...]},...]
-                Reust_Order_list.append({orders_object: Orders_object_list})
-        return render(request, 'view_all_order.html', {"user": username, 'Orders_set': Reust_Order_list})
+                result_order_list.append({orders_object: orders_object_list})
+        return render(request, 'view_all_order.html', {"user": username, 'Orders_set': result_order_list})
 
 
-# 删除订单
-# id=1,3删除单个订单，id=2删除总订单
-# id=1,2从查看总订单进入，id=3从查看单个订单进入
-def delete_orders(request, orders_id, sign):
+# 删除订单-reviewed
+def delete_orders(request, orders_id):
     util = Util()
     username = util.check_user(request)
     if username == "":
         uf = LoginForm()
         return render(request, "index.html", {'uf': uf, "error": "请登录后再进入"})
     else:
-        # 如果删除单独一个订单
-        if sign == "1" or sign == "3":
-            # 判断修改的地址是否属于当前登录用户
-            if not util.check_user_by_order(request, username, orders_id):
-                return render(request, "error.html", {"error": "你试图删除不属于你的单独一个订单信息！"})
-            else:
-                # 通过主键获得单独订单内容
-                order_filter = get_object_or_404(Order, id=orders_id)
-                # 获得当前订单所属于的总订单
-                orders_filter = get_object_or_404(Orders, id=order_filter.order_id)
-                # 删除这个单独订单
-                Order.objects.filter(id=orders_id).delete()
-                # 判断这个总订单下是否还有没有商品
-                judge_order = Order.objects.filter(order_id=orders_filter.id)
-                # 如果没有商品了
-                if (len(judge_order)) == 0:
-                    # 删除这个订单所处于的总订单记录
-                    Orders.objects.filter(id=orders_filter.id).delete()
-                    # 如果标记为3，返回商品列表页面
-                    if sign == "3":
-                        response = HttpResponseRedirect('/goods_view/')  # 跳入商品列表页面
-                    # 如果标记为1，返回查看所有订单页面
-                    if sign == "1":
-                        response = HttpResponseRedirect('/view_all_order/')  # 跳入商品列表页面
-                # 如果还有商品，且标记为3，返回订单确认页面
-                elif sign == "3":
-                    response = HttpResponseRedirect('/view_order/' + str(orders_filter.id) + '/')  # 跳入订单确认
-                # 否则返回所有订单页面
-                else:
-                    response = HttpResponseRedirect('/view_all_order/')  # 跳入查看所有订单
-            return response
-            # 如果删除总订单
-        elif sign == "2":
-            if not util.check_user_by_order(request, username, orders_id):
-                return render(request, "error.html", {"error": "你试图删除不属于你的总订单信息！"})
-            else:
-                # 删除单个订单
-                Order.objects.filter(order_id=orders_id).delete()
-                # 删除总订单
-                Orders.objects.filter(id=orders_id).delete()
-                # 返回查看所有订单页面
-                response = HttpResponseRedirect('/view_all_order/')  # 跳入查看所有订单
-                return response
+        # 删除单个订单表
+        Order.objects.filter(order_id=orders_id).delete()
+        # 删除总订单表
+        Orders.objects.filter(id=orders_id).delete()
+        # 返回查看所有订单页面
+        response = HttpResponseRedirect('/view_all_order/')  # 跳入查看所有订单
+        return response

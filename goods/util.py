@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from goods.models import Goods, Order, Orders, User
+from goods.models import Goods, Order, User
 from goods.object import ChartList, OrderList, OrdersList
 import hashlib
 
@@ -78,7 +78,6 @@ class Util:
         my_chart_list = []
         # 遍历cookie_list，把里面的内容加入类Chart_list列my_chart_list中
         for key in cookie_list:
-            chart_object = ChartList
             chart_object = self.set_chart_list(key, cookie_list)
             my_chart_list.append(chart_object)
         # 返回 my_chart_list
