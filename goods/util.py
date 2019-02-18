@@ -68,7 +68,10 @@ class Util:
         # 如果COOKIES内含有csrftoken，去除COOKIES内的csrftoken
         for key in list(cookie_list.keys()):
             if (key == "csrftoken") or (key == "sessionid") or (key.startswith("Hm_lvt_")) or (
-                    key.startswith("Hm_lpvt_")):
+                    key.startswith("Hm_lpvt_")) or (
+                    key == "JSESSIONID.07da98ff") or (key == "screenResolution") or (
+                    key == "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE") or (key == "jenkins-timestamper-offset") or (
+                    key == "JSESSIONID.a869a84f"):
                 del cookie_list[key]
         # 返回处理好的购物车内的所有内容
         return cookie_list
