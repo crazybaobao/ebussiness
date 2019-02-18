@@ -53,7 +53,8 @@ class Util:
         for i in cookie_list:
             if (i == "csrftoken") or (i == "sessionid") or (i.startswith("Hm_lvt_")) or (i.startswith("Hm_lpvt_")) or (
                     i.startswith("JSESSIONID")) or (i == "screenResolution") or (
-                    i == "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE") or (i == "jenkins-timestamper-offset"):
+                    i == "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE") or (i == "jenkins-timestamper-offset") or (
+                    i.startswith("BL")) or (i.startswith("SL")):
                 length = length - 1
         return length
 
@@ -69,7 +70,8 @@ class Util:
             if (key == "csrftoken") or (key == "sessionid") or (key.startswith("Hm_lvt_")) or (
                     key.startswith("Hm_lpvt_")) or (
                     key.startswith("JSESSIONID")) or (key == "screenResolution") or (
-                    key == "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE") or (key == "jenkins-timestamper-offset"):
+                    key == "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE") or (key == "jenkins-timestamper-offset") or (
+                    key.startswith("BL")) or (key.startswith("SL")):
                 del cookie_list[key]
         # 返回处理好的购物车内的所有内容
         return cookie_list

@@ -379,9 +379,6 @@ def view_all_order(request):
             # 通过当前订单编号获取这个订单的单个订单详细信息
             order_all = Order.objects.filter(order_id=key1.id)
             # 检查这个订单是不是属于当前用户的
-            print(order_all)
-            print(key1.id)
-            print("111")
             print(order_all[0].user_id)
             user = get_object_or_404(User, id=order_all[0].user_id)
             # 如果属于将其放入总订单列表中
