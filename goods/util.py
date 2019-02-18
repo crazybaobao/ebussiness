@@ -51,7 +51,8 @@ class Util:
         # 如果后台同时在运行，会产生一个名为csrftoken的cookie
         length = len(request.COOKIES)
         for i in cookie_list:
-            if (i == "csrftoken") or (i == "sessionid") or (i.startswith("Hm_lvt_")) or (i.startswith("Hm_lpvt_")):
+            if (i == "csrftoken") or (i == "sessionid") or (i.startswith("Hm_lvt_")) or (i.startswith("Hm_lpvt_")) or (
+                    i == "JSESSIONID.07da98ff") or (i == "screenResolution"):
                 length = length - 1
         return length
 
