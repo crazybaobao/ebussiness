@@ -273,7 +273,7 @@ def update_chart(request, good_id):
         else:
             # 否则修改商品数量
             response = HttpResponseRedirect('/view_chart/')
-            response.set_cookie(str(good.id), count, 60 * 60 * 24 * 365)
+            response.set_cookie(str(good.id), count, 60 * 60)
             return response
 
 
