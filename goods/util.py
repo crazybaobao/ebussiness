@@ -52,7 +52,8 @@ class Util:
         length = len(request.COOKIES)
         for i in cookie_list:
             if (i == "csrftoken") or (i == "sessionid") or (i.startswith("Hm_lvt_")) or (i.startswith("Hm_lpvt_")) or (
-                    i == "JSESSIONID.07da98ff") or (i == "screenResolution"):
+                    i == "JSESSIONID.07da98ff") or (i == "screenResolution") or (
+                    i == "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE") or (i == "jenkins-timestamper-offset"):
                 length = length - 1
         return length
 
