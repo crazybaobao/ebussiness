@@ -3,6 +3,7 @@ from django.db import models
 
 # Create your models here.
 # 用户
+
 class User(models.Model):
     username = models.CharField(max_length=50)  # 用户名
     password = models.CharField(max_length=50)  # 密码

@@ -20,8 +20,8 @@
                     <thead>
                     <tr>
                         <th>编号</th>
-                        <th>名称</th>
-                        <th>价钱</th>
+                        <th>资产名称</th>
+                        <th>大概价钱</th>
                         <th>个数</th>
                         <th>移除</th>
                     </tr>
@@ -46,11 +46,11 @@
                 </table>
                 <form method="get" action="/remove_chart_all/">
                     {% csrf_token %}
-                    <input type="submit" value="清空购物车">
+                    <input type="submit" value="清空当前清单">
                 </form>
                 <form method="get" action="/create_order/">
                     {% csrf_token %}
-                    <input type="submit" value="生成订单">
+                    <input type="submit" value="生成借记清单">
                 </form>
             </div>
 
